@@ -1,15 +1,11 @@
 # FastGithub
 github加速神器，解决github打不开、用户头像无法加载、releases无法上传下载、git-clone、git-pull、git-push失败等问题。
 
-### 0 写在前面
+### 1 写在前面
 * **fastgithub不具备“翻墙”功能,也没有相关的计划**
 * **fastgithub不支持Windows7等已被发行方停止支持的操作系统，并且也不会主动提供支持**
 * **fastgithub不能为您的游戏加速**
-* **fastgithub没有主动在github和fastgithub@qq.com之外的任何渠道发布**
-
-### 1 程序下载
-* [github-release下载](https://github.com/dotnetcore/fastgithub/releases)
-* 发送任意邮件到fastgithub@qq.com
+* **fastgithub没有主动在github之外的任何渠道发布**
   
 ### 2 部署方式
 #### 2.1 windows-x64桌面

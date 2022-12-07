@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using WindivertDotnet;
 
 namespace FastGithub
 {
@@ -18,7 +19,7 @@ namespace FastGithub
         /// 获取当前应用程序的产品版本
         /// </summary>
         public static ProductionVersion? Current { get; } = productionVersion == null ? null : Parse(productionVersion);
-         
+
 
         /// <summary>
         /// 版本
@@ -94,9 +95,8 @@ namespace FastGithub
         /// <returns></returns>
         public static ProductionVersion Parse(string productionVersion)
         {
-            const string VERSION = @"^\d+\.(\d+.){0,2}\d+";
-            var verion = Regex.Match(productionVersion, VERSION).Value;
-            var subVersion = productionVersion[verion.Length..];
+            string verion = productionVersion.Split("+")[0];
+            string subVersion = productionVersion.Split("+")[1];
             return new ProductionVersion(Version.Parse(verion), subVersion);
         }
     }
