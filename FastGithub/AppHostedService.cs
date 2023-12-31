@@ -41,8 +41,16 @@ namespace FastGithub
         /// <returns></returns>
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            var version = ProductionVersion.Current;
-            this.logger.LogInformation($"{nameof(FastGithub)}启动完成，当前版本为v{version}，访问 https://github.com/dotnetcore/fastgithub 关注新版本");
+            Version version;
+            if (ProductionVersion.Current is not null)
+            {
+                version = ProductionVersion.Current.Version;
+            }
+            else
+            {
+                version = new Version(0, 0);
+            }
+            this.logger.LogInformation($"\n======[ {nameof(FastGithub)} 启动完成，当前版本为 V{version} ]======\n");
             return base.StartAsync(cancellationToken);
         }
 

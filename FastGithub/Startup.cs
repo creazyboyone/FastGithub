@@ -18,12 +18,12 @@ using System.Text.Json;
 namespace FastGithub
 {
     /// <summary>
-    /// Æô¶¯Ïî
+    /// å¯åŠ¨é¡¹
     /// </summary>
     static class Startup
     {
         /// <summary>
-        /// ÅäÖÃÍ¨ÓÃÖ÷»ú
+        /// é…ç½®é€šç”¨ä¸»æœº
         /// </summary>
         /// <param name="builder"></param>
         public static void ConfigureHost(this WebApplicationBuilder builder)
@@ -44,7 +44,7 @@ namespace FastGithub
         }
 
         /// <summary>
-        /// ÅäÖÃwebÖ÷»ú
+        /// é…ç½®webä¸»æœº
         /// </summary>
         /// <param name="builder"></param>
         public static void ConfigureWebHost(this WebApplicationBuilder builder)
@@ -69,7 +69,7 @@ namespace FastGithub
 
 
         /// <summary>
-        /// ÅäÖÃÅäÖÃ
+        /// é…ç½®é…ç½®
         /// </summary>
         /// <param name="builder"></param>
         public static void ConfigureConfiguration(this WebApplicationBuilder builder)
@@ -87,7 +87,7 @@ namespace FastGithub
 
 
         /// <summary>
-        /// ÅäÖÃ·şÎñ
+        /// é…ç½®æœåŠ¡
         /// </summary>
         /// <param name="builder"></param>
         [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(Dictionary<string, DomainConfig>))]
@@ -113,7 +113,7 @@ namespace FastGithub
         }
 
         /// <summary>
-        /// ÅäÖÃÓ¦ÓÃ
+        /// é…ç½®åº”ç”¨
         /// </summary>
         /// <param name="app"></param>
         public static void ConfigureApp(this WebApplication app)
