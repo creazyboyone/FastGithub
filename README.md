@@ -1,6 +1,8 @@
 # FastGithub
 github加速神器，解决github打不开、用户头像无法加载、releases无法上传下载、git-clone、git-pull、git-push失败等问题。
 
+* 原仓库 https://github.com/dotnetcore/fastgithub 已经没有了，所以拿了最新版本改了自用。
+
 ### 1 写在前面
 * **fastgithub不具备“翻墙”功能,也没有相关的计划**
 * **fastgithub不支持Windows7等已被发行方停止支持的操作系统，并且也不会主动提供支持**
