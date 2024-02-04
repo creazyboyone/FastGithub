@@ -161,12 +161,6 @@
                     <local:IssuesWebbrowser/>
                 </Grid>
             </TabItem>
-
-            <TabItem Style="{StaticResource TabItemExWithUnderLineStyle}" Header="打赏" Height="40" Width="60" Margin="5 0" FontSize="18">
-                <Grid Background="#f7f7f7">
-                    <Image Source="Resource/reward.png" Margin="16" />
-                </Grid>
-            </TabItem>
         </TabControl>
     </Grid>
 </Window>
