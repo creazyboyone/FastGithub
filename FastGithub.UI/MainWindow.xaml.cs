@@ -13,7 +13,7 @@ namespace FastGithub.UI
     {
         private readonly System.Windows.Forms.NotifyIcon notifyIcon;
         private const string FASTGITHUB_UI = "FastGithub.UI";
-        private const string RELEASES_URI = "https://github.com/dotnetcore/FastGithub/releases";
+        private const string RELEASES_URI = "https://github.com/creazyboyone/FastGithub";
 
         public MainWindow()
         {
