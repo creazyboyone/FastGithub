@@ -1,4 +1,5 @@
-﻿using DNS.Client;
+﻿using AsyncKeyedLock;
+using DNS.Client;
 using DNS.Client.RequestResolver;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
@@ -7,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -30,7 +30,7 @@ namespace FastGithub.DomainResolve
         private readonly FastGithubConfig fastGithubConfig;
         private readonly ILogger<DnsClient> logger;
 
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> semaphoreSlims = new();
+        private readonly AsyncKeyedLocker<string> locks = new();
         private readonly IMemoryCache dnsStateCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
         private readonly IMemoryCache dnsLookupCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
 
@@ -123,9 +123,8 @@ namespace FastGithub.DomainResolve
             }
 
             var key = dns.ToString();
-            var semaphore = this.semaphoreSlims.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-            await semaphore.WaitAsync(CancellationToken.None);
 
+            using var _ = await locks.LockAsync(key);
             try
             {
                 using var timeoutTokenSource = new CancellationTokenSource(tcpConnectTimeout);
@@ -138,10 +137,6 @@ namespace FastGithub.DomainResolve
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 return this.dnsStateCache.Set(dns, false, this.stateExpiration);
-            }
-            finally
-            {
-                semaphore.Release();
             }
         }
 
@@ -156,9 +151,7 @@ namespace FastGithub.DomainResolve
         private async Task<IList<IPAddress>> LookupAsync(IPEndPoint dns, DnsEndPoint endPoint, bool fastSort, CancellationToken cancellationToken = default)
         {
             var key = $"{dns}/{endPoint}";
-            var semaphore = this.semaphoreSlims.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-            await semaphore.WaitAsync(CancellationToken.None);
-
+            using var _ = await locks.LockAsync(key);
             try
             {
                 if (this.dnsLookupCache.TryGetValue<IList<IPAddress>>(key, out var value))
@@ -177,10 +170,6 @@ namespace FastGithub.DomainResolve
                 this.logger.LogWarning($"{endPoint.Host}@{dns}->{ex.Message}");
                 var expiration = IsSocketException(ex) ? this.maxTimeToLive : this.minTimeToLive;
                 return this.dnsLookupCache.Set(key, Array.Empty<IPAddress>(), expiration);
-            }
-            finally
-            {
-                semaphore.Release();
             }
         }
 

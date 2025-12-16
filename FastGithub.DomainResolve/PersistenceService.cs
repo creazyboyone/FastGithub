@@ -1,4 +1,5 @@
-﻿using FastGithub.Configuration;
+﻿using AsyncKeyedLock;
+using FastGithub.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace FastGithub.DomainResolve
     sealed partial class PersistenceService
     {
         private static readonly string dataFile = "dnsendpoints.json";
-        private static readonly SemaphoreSlim dataLocker = new(1, 1); 
+        private static readonly AsyncNonKeyedLocker dataLocker = new(1); 
 
         private readonly FastGithubConfig fastGithubConfig;
         private readonly ILogger<PersistenceService> logger;
@@ -60,10 +61,9 @@ namespace FastGithub.DomainResolve
                 return Array.Empty<DnsEndPoint>();
             }
 
+            using var _ = dataLocker.Lock();
             try
             {
-                dataLocker.Wait();
-
                 var utf8Json = File.ReadAllBytes(dataFile);
                 var endPointItems = JsonSerializer.Deserialize(utf8Json, EndPointItemsContext.Default.EndPointItemArray);
                 if (endPointItems == null)
@@ -86,10 +86,6 @@ namespace FastGithub.DomainResolve
                 this.logger.LogWarning(ex.Message, "读取dns记录异常");
                 return Array.Empty<DnsEndPoint>();
             }
-            finally
-            {
-                dataLocker.Release();
-            }
         }
 
         /// <summary>
@@ -100,10 +96,9 @@ namespace FastGithub.DomainResolve
         /// <returns></returns>
         public async Task WriteDnsEndPointsAsync(IEnumerable<DnsEndPoint> dnsEndPoints, CancellationToken cancellationToken)
         {
+            using var _ = await dataLocker.LockAsync();
             try
             {
-                await dataLocker.WaitAsync(CancellationToken.None);
-
                 var endPointItems = dnsEndPoints.Select(item => new EndPointItem(item.Host, item.Port)).ToArray();
                 var utf8Json = JsonSerializer.SerializeToUtf8Bytes(endPointItems, EndPointItemsContext.Default.EndPointItemArray);
                 await File.WriteAllBytesAsync(dataFile, utf8Json, cancellationToken);
@@ -111,10 +106,6 @@ namespace FastGithub.DomainResolve
             catch (Exception ex)
             {
                 this.logger.LogWarning(ex.Message, "保存dns记录异常");
-            }
-            finally
-            {
-                dataLocker.Release();
             }
         }
     }
