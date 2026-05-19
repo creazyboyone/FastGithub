@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -25,13 +26,16 @@ namespace FastGithub.UI
             var exit = new System.Windows.Forms.MenuItem("关闭应用(&C)");
             exit.Click += (s, e) => this.Close();
 
+            var restart = new System.Windows.Forms.MenuItem("重启应用(&R)");
+            restart.Click += (s, e) => RestartApplication();
+
             var version = this.GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
             this.Title = $"{FASTGITHUB_UI} v{version}";
             this.notifyIcon = new System.Windows.Forms.NotifyIcon
             {
                 Visible = true,
                 Text = FASTGITHUB_UI,
-                ContextMenu = new System.Windows.Forms.ContextMenu(new[] { upgrade, exit }),
+                ContextMenu = new System.Windows.Forms.ContextMenu(new[] { restart, upgrade, exit }),
                 Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath)
             };
 
@@ -44,6 +48,35 @@ namespace FastGithub.UI
                     this.WindowState = WindowState.Normal;
                 }
             };
+        }
+
+        /// <summary>
+        /// 管理员权限程序 安全重启
+        /// </summary>
+        private void RestartApplication()
+        {
+            try
+            {
+                // 获取当前程序路径
+                string exePath = Process.GetCurrentProcess().MainModule.FileName;
+
+                // 重点：用 cmd /c start 异步启动，不等待，不阻塞
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c start \"\" \"{exePath}\"",
+                    Verb = "runas",       // 管理员权限
+                    UseShellExecute = true,
+                    CreateNoWindow = true // 不显示黑窗口
+                });
+
+                // 立刻关闭当前程序
+                Application.Current.Shutdown();
+            }
+            catch
+            {
+                // 用户取消UAC时，不报错
+            }
         }
 
 
